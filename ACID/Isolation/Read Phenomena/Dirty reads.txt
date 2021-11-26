@@ -1,0 +1,31 @@
+CREATE TABLE users(id INTEGER , name VARCHAR , age FLOAT);
+INSERT INTO users(id , name , age)VALUES(1, 'mohammed' , 23.0);
+INSERT INTO account(id , name , age)VALUES(2, 'ahmed' , 18.0);
+                                                                    id  |   name       |  age
+                                                                ===============================
+                                                                    1   |   mohammed   |  23.0
+                                                                ===============================
+                                                                    2   |   ahmed      |  18.0
+                                                                ===============================
+
+
+BEGIN transaction; /* T1 */                       ||    BEGIN transaction; /* T2 */         
+    /* Q1 on T1 */                                ||        
+    SELECT age FROM users WHERE id = 1;           ||    
+    /* will read 23.0 */                          ||        
+                                                  ||        /* Q1 on T2 */
+                                                  ||        UPDATE users SET age = 24.0 WHERE id = 1;
+                                                  ||        
+                                                  ||
+                                                  ||                  id  |   name       |  age
+                                                  ||              ===============================
+                                                  ||                  1   |   mohammed   |  24.0
+                                                  ||              ===============================
+                                                  ||                  2   |   ahmed      |  18.0
+                                                  ||              ===============================
+    /* Q2 on T1 */                                ||
+    SELECT age FROM users WHERE id = 1;           || 
+    /* will read 24.0 */                          ||
+                                                  ||        ROLLBACK;
+
+/* Transaction Read un commited Value ?! it's dirty read*/
